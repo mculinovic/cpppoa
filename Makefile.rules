@@ -1,0 +1,62 @@
+CP = g++
+CP_VERSIONS = g++-4.8 g++-4.9
+
+NAME = example
+
+SRC_DIR = ../src
+OBJ_DIR = obj
+
+CP_FLAGS += -std=c++11
+CP_FLAGS += -I../lib
+CP_FLAGS += -W -Wall -Wno-long-long -pedantic -Wno-variadic-macros
+LD_FLAGS =
+
+CPP_FILES := $(wildcard $(SRC_DIR)/*.cpp)
+OBJ_FILES := $(addprefix $(OBJ_DIR)/,$(notdir $(CPP_FILES:.cpp=.o)))
+DEP_FILES = $(OBJ_FILES:.o=.d)
+
+UNAME_S := $(shell uname -s)
+versions := 0
+
+ifeq ($(UNAME_S),Linux)
+	# add rt library linking on Linux OS
+	LD_FLAGS+=-lrt
+endif
+ifeq ($(UNAME_S),Darwin)
+	# attempts to select the highest g++ version available
+
+	compiler := $(shell g++-4.8 --version 2>/dev/null)
+	ifdef compiler
+		CP = g++-4.8
+	endif
+
+	compiler := $(shell g++-4.9 --version 2>/dev/null)
+	ifdef compiler
+		CP = g++-4.9
+	endif
+endif
+
+default: all
+
+all: $(NAME) $(OBJ_FILES)
+
+$(NAME): $(OBJ_FILES)
+	@echo [LD] $@
+	@$(CP) $(LD_FLAGS) -o $@ $^
+
+$(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
+	@echo [CP] $<
+	@$(CP) $(CP_FLAGS) -c -MMD -o $@ $<
+
+$(OBJ_DIR):
+	@mkdir -p $(OBJ_DIR)
+
+$(OBJ_FILES): | $(OBJ_DIR)
+
+clean:
+	@echo [RM] cleaning $(MODULE)
+	@rm -rf $(OBJ_DIR) main
+
+.PHONY: default all clean
+
+-include $(DEP_FILES)
