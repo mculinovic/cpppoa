@@ -42,7 +42,7 @@ all: $(NAME) $(OBJ_FILES)
 
 $(NAME): $(OBJ_FILES)
 	@echo [LD] $@
-	@$(CP) $(LD_FLAGS) -o $@ $^
+	@$(CP) -c -o $@ $^
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
 	@echo [CP] $<
