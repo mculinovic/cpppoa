@@ -22,13 +22,13 @@ The tool should be compatible with most UNIX flavors and has been successfully t
 
 ## Installation
 
-To install the CPPPOA run the following commands from the folder where you want to install the tool:
+To build the CPPPOA run the following commands from the folder where you want to install the tool:
 
 	git clone https://github.com/mculinovic/cpppoa.git
 	cd cpppoa/
 	make
 
-Running the `make` command without arguments will build the release version of the tool and the example binary file `release/cpppoa`.
+Running the `make` command without arguments will build the release version of the programming interface (see #Usage).
 
 To build the debug version of the tool use:
 
@@ -61,7 +61,7 @@ Use the following commands from the root of the project to create the PDF versio
 
 ## Usage
 
-To use cpppoa as programming interface just do following - include poa.hpp and compile it together with cpppoa:
+To use cpppoa as programming interface just do following - include poa.hpp in your code and compile it together with source files in cppppoa/src directory:
 
 
 ```
