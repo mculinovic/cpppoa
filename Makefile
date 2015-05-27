@@ -1,16 +1,18 @@
 DX = doxygen
 DOC = docs/Doxyfile
 
+NAME = cpppoa
+
 default: release
 
 all: debug release
 
 debug:
-	@echo [MAKE] $@
+	@echo [MAKE] $(NAME) $@
 	@$(MAKE) -C debug
 
 release:
-	@echo [MAKE] $@
+	@echo [MAKE] $(NAME) $@
 	@$(MAKE) -C release
 
 docs:
