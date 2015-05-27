@@ -1,8 +1,13 @@
 CP = g++
-CP_VERSIONS = g++-4.8 g++-4.9
+
+NAME = cpppoa
 
 SRC_DIR = ../src
 OBJ_DIR = obj
+INC_DIR = ../include/$(NAME)
+LIB_DIR = ../lib
+
+API = $(SRC_DIR)/poa.hpp
 
 CP_FLAGS += -std=c++11
 CP_FLAGS += -I../lib
@@ -12,6 +17,9 @@ LD_FLAGS =
 CPP_FILES := $(wildcard $(SRC_DIR)/*.cpp)
 OBJ_FILES := $(addprefix $(OBJ_DIR)/,$(notdir $(CPP_FILES:.cpp=.o)))
 DEP_FILES = $(OBJ_FILES:.o=.d)
+
+LIB_FILE = $(LIB_DIR)/lib$(NAME).a
+INC_FILES = $(subst $(SRC_DIR), $(INC_DIR), $(API))
 
 UNAME_S := $(shell uname -s)
 versions := 0
@@ -32,25 +40,40 @@ ifeq ($(UNAME_S),Darwin)
 	ifdef compiler
 		CP = g++-4.9
 	endif
+
+	compiler := $(shell g++-5 --version 2>/dev/null)
+	ifdef compiler
+		CP = g++-5
+	endif
 endif
 
 default: all
 
-all: $(OBJ_FILES)
+all: include lib
+
+include: $(INC_FILES)
+
+lib: $(LIB_FILE)
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
 	@echo [CP] $<
+	@mkdir -p $(dir $@)
 	@$(CP) $(CP_FLAGS) -c -MMD -o $@ $<
 
-$(OBJ_DIR):
-	@mkdir -p $(OBJ_DIR)
+$(LIB_FILE): $(OBJ_FILES)
+	@echo [AR] $@
+	@mkdir -p $(dir $@)
+	@ar rcs $(LIB_FILE) $(OBJ_FILES) 2> /dev/null
 
-$(OBJ_FILES): | $(OBJ_DIR)
+$(INC_DIR)/%.hpp: $(SRC_DIR)/%.hpp
+	@echo [CP] $@
+	@mkdir -p $(dir $@)
+	@cp $< $@
 
 clean:
 	@echo [RM] cleaning $(MODULE)
-	@rm -rf $(OBJ_DIR) main
+	@rm -rf $(OBJ_DIR) $(INC_DIR) $(LIB_DIR)
 
-.PHONY: default all clean
+.PHONY: default all lib include clean
 
 -include $(DEP_FILES)
