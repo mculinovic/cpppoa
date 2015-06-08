@@ -1,4 +1,4 @@
-CP = g++
+CXX = g++
 
 NAME = cpppoa
 
@@ -9,9 +9,9 @@ LIB_DIR = ../lib
 
 API = $(SRC_DIR)/poa.hpp
 
-CP_FLAGS += -std=c++11
-CP_FLAGS += -I../lib
-CP_FLAGS += -W -Wall -Wno-long-long -pedantic -Wno-variadic-macros
+CXX_FLAGS += -std=c++11
+CXX_FLAGS += -I../lib
+CXX_FLAGS += -W -Wall -Wno-long-long -pedantic -Wno-variadic-macros
 LD_FLAGS =
 
 CPP_FILES := $(wildcard $(SRC_DIR)/*.cpp)
@@ -33,17 +33,17 @@ ifeq ($(UNAME_S),Darwin)
 
 	compiler := $(shell g++-4.8 --version 2>/dev/null)
 	ifdef compiler
-		CP = g++-4.8
+		CXX = g++-4.8
 	endif
 
 	compiler := $(shell g++-4.9 --version 2>/dev/null)
 	ifdef compiler
-		CP = g++-4.9
+		CXX = g++-4.9
 	endif
 
 	compiler := $(shell g++-5 --version 2>/dev/null)
 	ifdef compiler
-		CP = g++-5
+		CXX = g++-5
 	endif
 endif
 
@@ -56,9 +56,9 @@ include: $(INC_FILES)
 lib: $(LIB_FILE)
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
-	@echo [CP] $<
+	@echo [CC] $<
 	@mkdir -p $(dir $@)
-	@$(CP) $(CP_FLAGS) -c -MMD -o $@ $<
+	@$(CXX) $(CXX_FLAGS) -c -MMD -o $@ $<
 
 $(LIB_FILE): $(OBJ_FILES)
 	@echo [AR] $@

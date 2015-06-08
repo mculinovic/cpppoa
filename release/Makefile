@@ -1,4 +1,4 @@
 include ../Makefile.rules
 
 MODULE = release
-CP_FLAGS += -O3 -DNDEBUG
+CXX_FLAGS += -O3 -DNDEBUG

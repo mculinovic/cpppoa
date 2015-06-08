@@ -1,4 +1,4 @@
 include ../Makefile.rules
 
 MODULE = debug
-CP_FLAGS += -g -O0
+CXX_FLAGS += -g -O0
