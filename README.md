@@ -16,7 +16,7 @@ The tool should be compatible with most UNIX flavors and has been successfully t
 - Ubuntu 14.04 LTS
 
 ## Requirements
-- g++ (4.8.2. or higher)
+- [g++][3] (4.8.2. or higher)
 - [GNU Make][2]
 - [Doxygen][1] (optional)
 
@@ -87,3 +87,4 @@ string consensus = poa_consensus(sequences);
 
 [1]: http://www.stack.nl/~dimitri/doxygen/ "Doxygen"
 [2]: http://www.gnu.org/software/make/ "GNU Make"
+[3]: https://gcc.gnu.org "g++"
