@@ -8,6 +8,9 @@ release/
 docs/
 !docs/Doxyfile
 
+include/
+lib/
+
 # Pycharm files
 scripts/.idea/
 
