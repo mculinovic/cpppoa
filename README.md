@@ -28,7 +28,7 @@ To build the CPPPOA run the following commands from the folder where you want to
 	cd cpppoa/
 	make
 
-Running the `make` command without arguments will build the release version of the programming interface. The static library file `libcpppoa.a` will be generated and public header `poa.hpp` will be available in the `include/cpppoa` directory. (see [Usage instructions](#Usage)).
+Running the `make` command without arguments will build the release version of the programming interface. The static library file `libcpppoa.a` will be generated and public header `poa.hpp` will be available in the `include/cpppoa` directory. (see [Usage instructions](#usage)).
 
 To build the debug version of the tool use:
 
