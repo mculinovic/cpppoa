@@ -28,7 +28,7 @@ To build the CPPPOA run the following commands from the folder where you want to
 	cd cpppoa/
 	make
 
-Running the `make` command without arguments will build the release version of the programming interface (see #Usage).
+Running the `make` command without arguments will build the release version of the programming interface. The static library file `libcpppoa.a` will be generated and public header `poa.hpp` will be available in the `include/cpppoa` directory. (see [Usage instructions](#Usage)).
 
 To build the debug version of the tool use:
 
@@ -61,20 +61,20 @@ Use the following commands from the root of the project to create the PDF versio
 
 ## Usage
 
-To use cpppoa as programming interface just do following - include poa.hpp in your code and compile it together with source files in cppppoa/src directory:
+To use `cpppoa` in your project include `poa.hpp` in your source code and provide it with a library file `libcpppoa.a` when linking the executable file.
 
 
 ```
 ...
-#include "poa.hpp"
+#include "include/cpppoa/poa.hpp"
 ...
 ```
 ```
 ...
-string seq("PESLLYGRFTIESDVW");
+string seq1("PESLLYGRFTIESDVW");
 string seq2("PEAALYGRFTIKSDVW");
 vector<string> sequences;
-sequences.emplace_back(seq);
+sequences.emplace_back(seq1);
 sequences.emplace_back(seq2);
 
 string consensus = poa_consensus(sequences);
