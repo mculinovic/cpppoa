@@ -12,7 +12,6 @@
 
 #include <vector>
 #include <string>
-#include <unordered_map>
 #include <tuple>
 #include <deque>
 
@@ -20,7 +19,6 @@
 
 using std::vector;
 using std::string;
-using std::unordered_map;
 using std::tuple;
 using std::deque;
 
@@ -113,9 +111,9 @@ class Alignment {
     deque<int> node_ids_;
 
     // map node ID to index in dp matrix
-    unordered_map<uint32_t, uint32_t> nodeID_to_index_;
+    vector<uint32_t> nodeID_to_index_;
     // map index in dp matrix to node ID
-    unordered_map<uint32_t, uint32_t> index_to_nodeID_;
+    vector<uint32_t> index_to_nodeID_;
 
     // max score in matrix
     int max_score_;
@@ -138,28 +136,6 @@ class Alignment {
      * @brief Backtracks best alignment path
      */
     void backtrack();
-
-
-    /**
-     * @brief Finds predecessors of node
-     * @details Node predeccesors are nodes which outgoing
-     * edges are ending in node given as function parameter
-     * 
-     * @param node find predeccsors of this node
-     * @return predecessors node ids
-     */
-    vector<int> node_predecessors(const shared_ptr<Node>& node);
-
-
-    /**
-     * @brief calculates best move for dp matrix
-     * @details calculates maximum score move between
-     * candidates
-     * 
-     * @param candidates candidates for max score
-     * @return max score move; type tuple (@see typedef for move)
-     */
-    move get_best_move(const vector<move>& candidates);
 };
 
 #endif  // ALIGNMENT_H
