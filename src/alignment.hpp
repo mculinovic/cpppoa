@@ -14,6 +14,7 @@
 #include <string>
 #include <tuple>
 #include <deque>
+#include <unordered_map>
 
 #include "./graph.hpp"
 
@@ -21,6 +22,7 @@ using std::vector;
 using std::string;
 using std::tuple;
 using std::deque;
+using std::unordered_map;
 
 
 typedef tuple<int, int, int, char> move;
@@ -52,6 +54,26 @@ class Alignment {
      * (http://en.wikipedia.org/wiki/Smith%E2%80%93Waterman_algorithm).
      */
     void align();
+
+
+    /**
+     * @brief Aligns sequence to part of graph which represents part of sequence
+     * on position >= pos.
+     * @details Method is created to improve efficieny while aligning sequence
+     * that should occur in some later parts of the graph.
+     * Example:
+     * AAAAAAAAAAABBBBBBFBBCCCCDC (seq1)
+     *                  BBBCCCDCC (seq2)
+     * seq1.indexOf('F') - THRESHOLD would be a nice 'pos' to pass since more than
+     * a half of string won't be part od DP.
+     *
+     * Method performs local alignment between
+     * string sequence and directed acyclic graph (DAG).
+     * Algorithm is variation of smith-waterman algorithm
+     * (http://en.wikipedia.org/wiki/Smith%E2%80%93Waterman_algorithm).
+     * @param pos minimum position where to align
+     */
+    void align_starting_at(const uint32_t pos);
 
 
     /**
@@ -111,7 +133,7 @@ class Alignment {
     deque<int> node_ids_;
 
     // map node ID to index in dp matrix
-    vector<uint32_t> nodeID_to_index_;
+    unordered_map<uint32_t, int> nodeID_to_index_;
     // map index in dp matrix to node ID
     vector<uint32_t> index_to_nodeID_;
 
@@ -122,14 +144,32 @@ class Alignment {
     // column index of maximum score
     int max_j_;
 
+    // number of graph nodes that could be aligned with the sequence.
+    // All nodes that occur before given start position for sure will not be accounted here.
+    int valid_nodes_num_;
+
+
+    /**
+     * @brief Returns index of given node_id in DP table. If node is
+     * not part of DP, returns -1.
+     *
+     * @param node_id node id
+     * @return index in DP table if exists, otherwise -1.
+     */
+    int index_from_node_id(const uint32_t node_id) const;
+
 
     /**
      * @brief Initializes matrices for smith-waterman
      * @details Initializes dynamic programming score
      * matrix, and backtracking matrices for keeping
-     * track of best alignment path
+     * track of best alignment path.
+     * Since some nodes are out of DP (if aligning starts from pos > 0),
+     * matrix is "sparse".
+     * @param starting_pos minimum starting position in result sequence
+     * where the query sequence is going to be aligned.
      */
-    void init_dp_tables();
+    void init_dp_tables(const int starting_pos);
 
 
     /**

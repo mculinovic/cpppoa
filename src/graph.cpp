@@ -7,6 +7,7 @@
  * based on https://github.com/ljdursi/poapy/blob/master/poagraph.py
  * Graph class python implementation
  */
+#include <cassert>
 #include <string>
 #include <vector>
 #include <memory>
@@ -36,10 +37,7 @@ using std::numeric_limits;
 Graph::Graph(const string& seq, const string& label): next_id_(0),
                                                       is_sorted(true) {
     addUnmatchedSequence(seq, label, true);
-    // topological order is same as nodes where added so copy it
-    for (uint32_t id = 0; id < nodes_.size(); ++id) {
-        nodes_order_.emplace_back(id);
-    }
+    topological_sort();
 }
 
 void Graph::addNode(char base) {
@@ -276,6 +274,9 @@ void Graph::topological_sort() {
     // figure out a better way
     reverse(nodes_order_.begin(), nodes_order_.end());
     is_sorted = true;
+
+    // calculate max distances
+    calc_nodes_distances();
 }
 
 
@@ -369,4 +370,20 @@ void Graph::alignment_strings() {
         }
         std::cout << aln_string << std::endl;
     }
+}
+
+void Graph::calc_nodes_distances() {
+  assert(is_sorted == true);
+
+  node_distance_.clear();
+  node_distance_.resize(nodes_order_.size(), 0);
+  for (auto curr_id : nodes_order_) {
+      for (auto prev_id : getNode(curr_id)->getPredecessorsIds()) {
+          node_distance_[curr_id] = max(node_distance_[prev_id] + 1, node_distance_[curr_id]);
+      }
+  }
+}
+
+int Graph::node_distance(const int node_id) const {
+  return node_distance_[node_id];
 }

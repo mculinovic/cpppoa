@@ -66,16 +66,19 @@ void Alignment::backtrack() {
 
 
 void Alignment::align() {
-    uint32_t n = graph_.getNodesNum();
+    align_starting_at(0);
+}
+
+void Alignment::align_starting_at(const uint32_t min_pos) {
     uint32_t m = sequence_.length();
     max_score_ = numeric_limits<int>::min();
     max_i_ = -1;
     max_j_ = -1;
 
-    init_dp_tables();
+    init_dp_tables(min_pos);
 
-    vector<int> insert_cost((n+1)*(m+1), open_gap_score_);
-    vector<int> delete_cost((n+1)*(m+1), open_gap_score_);
+    vector<int> insert_cost((valid_nodes_num_+1)*(m+1), open_gap_score_);
+    vector<int> delete_cost((valid_nodes_num_+1)*(m+1), open_gap_score_);
 
     auto match_score = [](char seq_base, char node_base) -> int {
         if (seq_base == node_base) {
@@ -91,21 +94,20 @@ void Alignment::align() {
     // -> 'I' - insertion
     // -> 'D' - deletion
     // -> 'M' - match or mismatch
-    const vector<uint32_t>& nodes_ids = const_cast<Graph&>(graph_).getNodesIds();
-    for (uint32_t i = 0; i < n; ++i) {
-        char base = graph_.getNode(nodes_ids[i])->base();
+    for (uint32_t i = 0; i < valid_nodes_num_; ++i) {
+        auto& node = graph_.getNode(index_to_nodeID_[i]);
+        const char base = node->base();
 
         for (uint32_t j = 0; j < sequence_.length(); ++j) {
             // insertion from sequence, unchanged as in SW
             move best_candidate(scores_[i + 1][j] + insert_cost[(i + 1)*m + j],
                                     i + 1, j, 'I');
 
-            auto& node = graph_.getNode(nodes_ids[i]);
             if (node->getPredecessorsIds().size()) {
               // for every other operation I have to check for all predeccesors of
               // current node
               for (auto node_id : node->getPredecessorsIds()) {
-                auto prev_index = nodeID_to_index_[node_id];
+                auto prev_index = index_from_node_id(node_id);
 
                 // match/mismatch
                 move mm(scores_[prev_index + 1][j] +
@@ -175,29 +177,41 @@ void Alignment::align() {
 }
 
 
-void Alignment::init_dp_tables() {
-    uint32_t n = graph_.getNodesNum();
+void Alignment::init_dp_tables(const int min_pos) {
     uint32_t m = sequence_.length();
+    valid_nodes_num_ = 0;
 
     const vector<uint32_t>& nodes_ids = const_cast<Graph&>(graph_).getNodesIds();
-    int max_node_id = -1;
     for (int node_id: nodes_ids) {
-      max_node_id = max(max_node_id, node_id);
+      valid_nodes_num_ += graph_.node_distance(node_id) >= min_pos;
     }
 
-    nodeID_to_index_.resize(max_node_id + 1, -1);
-    index_to_nodeID_.resize(nodes_ids.size());
+    index_to_nodeID_.resize(valid_nodes_num_);
 
-    for (size_t i = 0; i < nodes_ids.size(); ++i) {
-        nodeID_to_index_[nodes_ids[i]] = i;
-        index_to_nodeID_[i] = nodes_ids[i];
+    uint32_t idx = 0;
+    for (int node_id: nodes_ids) {
+        if (graph_.node_distance(node_id) < min_pos) {
+            continue;
+        }
+
+        nodeID_to_index_[node_id] = idx;
+        index_to_nodeID_[idx] = node_id;
+        idx++;
     }
 
     // init dynamic programming smith waterman matrix
-    scores_.resize(n + 1, vector<int>(m + 1, 0));
+    scores_.resize(valid_nodes_num_ + 1, vector<int>(m + 1, 0));
 
 
     // init backtracking matrices
-    backtrack_seq_idx_.resize(n + 1, vector<int>(m + 1, 0));
-    backtrack_graph_idx_.resize(n + 1, vector<int>(m + 1, 0));
+    backtrack_seq_idx_.resize(valid_nodes_num_ + 1, vector<int>(m + 1, 0));
+    backtrack_graph_idx_.resize(valid_nodes_num_ + 1, vector<int>(m + 1, 0));
+}
+
+int Alignment::index_from_node_id(const uint32_t node_id) const {
+    if (nodeID_to_index_.find(node_id) == nodeID_to_index_.end()) {
+        return -1;
+    }
+
+    return nodeID_to_index_.find(node_id)->second;
 }
