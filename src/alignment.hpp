@@ -133,7 +133,7 @@ class Alignment {
     deque<int> node_ids_;
 
     // map node ID to index in dp matrix
-    unordered_map<uint32_t, int> nodeID_to_index_;
+    vector<int> nodeID_to_index_;
     // map index in dp matrix to node ID
     vector<uint32_t> index_to_nodeID_;
 

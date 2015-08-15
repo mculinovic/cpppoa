@@ -181,12 +181,16 @@ void Alignment::init_dp_tables(const int min_pos) {
     uint32_t m = sequence_.length();
     valid_nodes_num_ = 0;
 
+    uint32_t max_node_id = 0;
+
     const vector<uint32_t>& nodes_ids = const_cast<Graph&>(graph_).getNodesIds();
-    for (int node_id: nodes_ids) {
+    for (uint32_t node_id: nodes_ids) {
+      max_node_id = max(max_node_id, node_id);
       valid_nodes_num_ += graph_.node_distance(node_id) >= min_pos;
     }
 
     index_to_nodeID_.resize(valid_nodes_num_);
+    nodeID_to_index_.resize(max_node_id + 1, -1);
 
     uint32_t idx = 0;
     for (int node_id: nodes_ids) {
@@ -209,9 +213,5 @@ void Alignment::init_dp_tables(const int min_pos) {
 }
 
 int Alignment::index_from_node_id(const uint32_t node_id) const {
-    if (nodeID_to_index_.find(node_id) == nodeID_to_index_.end()) {
-        return -1;
-    }
-
-    return nodeID_to_index_.find(node_id)->second;
+    return nodeID_to_index_[node_id];
 }
