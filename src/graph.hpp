@@ -36,18 +36,17 @@ class Graph {
      * @brief Graph constructor
      * @details Constructor of directed acyclic graph.
      * Creates graph from sequence given as parameter.
-     * 
-     * @param seq sequence 
+     *
+     * @param seq sequence
      * @param label sequence labal
      */
     Graph(const string& seq, const string& label);
-
 
     /**
      * @brief Adds Node to graph
      * @details Method constructs new Node with
      * base given as parameter and adds it to graph.
-     * 
+     *
      * @param base nucleotid(base)
      */
     void addNode(char base);
@@ -57,7 +56,7 @@ class Graph {
      * @brief Adds Edge to graph
      * @details Method constructs new edge connecting
      * nodes with ids given as parameters.
-     * 
+     *
      * @param id_A start node id
      * @param id_B end node id
      * @param label label of sequence which passes through this edge
@@ -67,7 +66,7 @@ class Graph {
 
     /**
      * @brief Getter for Node with given id
-     * 
+     *
      * @param id node id
      * @return pointer to node
      */
@@ -145,6 +144,15 @@ class Graph {
      */
     void generate_consensus(string *pconsensus);
 
+
+    /**
+     * @brief returns precalculated maximum node distance from the very start 
+     * @details after every topological sort, values are recalculated
+     * 
+     * @param node_id node id 
+     */
+    int node_distance(const int node_id) const;
+
  private:
     /**
      * @brief Depth-first search method
@@ -159,6 +167,12 @@ class Graph {
      * @details http://en.wikipedia.org/wiki/Topological_sorting
      */
     void topological_sort();
+
+    /**
+     * @brief fills node_distance_
+     * @details must be run when is_sorted == true
+     */
+    void calc_nodes_distances();
 
     // vector of graph nodes
     vector<shared_ptr< Node >> nodes_;
@@ -178,6 +192,9 @@ class Graph {
     vector<string> labels_;
     // start node ids for every sequence
     vector<int> start_ids_;
+
+    // maximum distance of every node (from start node)
+    vector<int> node_distance_;
 };
 
 #endif  // GRAPH_H
