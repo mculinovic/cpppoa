@@ -18,15 +18,33 @@
 
 #include "./graph.hpp"
 
-using std::vector;
+using std::deque;
+using std::pair;
 using std::string;
 using std::tuple;
-using std::deque;
 using std::unordered_map;
+using std::vector;
 
 namespace POA {
 
     typedef tuple<int, int, int, char> move;
+    typedef pair<int, int> limit;
+
+    /**
+     * @brief dp_el struct 
+     * @details stores all information related to particular element in DP matrix.
+     */
+    struct dp_el {
+        int score;
+        int prev_graph_idx;
+        int prev_seq_idx;
+        char insert_cost;
+        char delete_cost;
+
+        dp_el(const int score, const int prev_graph_idx, const int prev_seq_idx, const int insert_cost, const int delete_cost)
+          : score(score), prev_graph_idx(prev_graph_idx), prev_seq_idx(prev_seq_idx), insert_cost(insert_cost), delete_cost(delete_cost)
+        {}
+    };
 
     /**
      * @brief Alignment class
@@ -145,12 +163,8 @@ namespace POA {
         // poa graph
         const Graph& graph_;
 
-        // smith-waterman dynamic programming score matrix
-        vector<vector<int>> scores_;
-        // backtracking matrix for sequence
-        vector<vector<int>> backtrack_seq_idx_;
-        // backtracking matrix for graph
-        vector<vector<int>> backtrack_graph_idx_;
+        // smith-waterman dynamic programming "matrix" storage (condensed)
+        vector<dp_el> dp_;
 
         // sequence indices representing alignment
         deque<int> seq_idxs_;
@@ -161,6 +175,8 @@ namespace POA {
         vector<int> nodeID_to_index_;
         // map index in dp matrix to node ID
         vector<uint32_t> index_to_nodeID_;
+        // maps node_index -> sequence.lo, sequence.hi that has to be aligned to node on dp[node_index]
+        vector<limit> seq_limits_;
 
         // max score in matrix
         int max_score_;
@@ -171,7 +187,7 @@ namespace POA {
 
         // number of graph nodes that could be aligned with the sequence.
         // All nodes that occur before given start position for sure will not be accounted here.
-        int valid_nodes_num_;
+        uint32_t valid_nodes_num_;
 
         // minimal valid node_id
         // used for compressing nodeID_to_index_ field
@@ -180,6 +196,9 @@ namespace POA {
         // maximal valid node_id
         // used for compressing nodeID_to_index_ field
         int min_valid_node_id_;
+
+        // maximum dp row width.
+        uint32_t dp_width_;
 
 
         /**
@@ -193,22 +212,31 @@ namespace POA {
 
 
         /**
-         * @brief Initializes matrices for smith-waterman
-         * @details Initializes dynamic programming score
-         * matrix, and backtracking matrices for keeping
-         * track of best alignment path.
+         * @brief Initializes matrices and all needed values for smith-waterman
+         * @details Initializes dynamic programming matrix, and sequence substring
+         * coordinates for each node.
          * Since some nodes are out of DP (if aligning starts from pos > 0),
          * matrix is "sparse".
          * @param starting_pos minimum starting position in result sequence
          * where the query sequence is going to be aligned.
+         * @band_width aligning band width
          */
-        void init_dp_tables(const int starting_pos);
+        void init_dp(const int starting_pos, const int band_width);
 
 
         /**
          * @brief Backtracks best alignment path
          */
         void backtrack();
+
+
+        /**
+         * @brief returns DP element
+         * @param i - dp row
+         * @param j - dp column
+         * @returns dp[i][j]
+         */
+        inline dp_el& dp(const uint32_t i, const uint32_t j);
     };
 }
 

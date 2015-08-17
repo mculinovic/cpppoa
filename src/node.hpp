@@ -12,6 +12,7 @@
 
 #include <string>
 #include <unordered_map>
+#include <map>
 #include <memory>
 #include <vector>
 
@@ -19,6 +20,7 @@
 
 using std::string;
 using std::unordered_map;
+using std::map;
 using std::shared_ptr;
 using std::vector;
 
@@ -27,7 +29,7 @@ namespace POA {
     class Graph;
     class Edge;
 
-    typedef unordered_map<uint32_t, shared_ptr< Edge >> Edges;
+    typedef map<uint32_t, shared_ptr< Edge >> Edges;
 
 
     class Node {
