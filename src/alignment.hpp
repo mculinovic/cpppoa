@@ -148,6 +148,14 @@ class Alignment {
     // All nodes that occur before given start position for sure will not be accounted here.
     int valid_nodes_num_;
 
+    // minimal valid node_id
+    // used for compressing nodeID_to_index_ field
+    int max_valid_node_id_;
+
+    // maximal valid node_id
+    // used for compressing nodeID_to_index_ field
+    int min_valid_node_id_;
+
 
     /**
      * @brief Returns index of given node_id in DP table. If node is

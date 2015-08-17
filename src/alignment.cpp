@@ -20,6 +20,7 @@
 
 using std::get;
 using std::max;
+using std::min;
 using std::numeric_limits;
 using std::string;
 using std::tuple;
@@ -181,16 +182,22 @@ void Alignment::init_dp_tables(const int min_pos) {
     uint32_t m = sequence_.length();
     valid_nodes_num_ = 0;
 
-    uint32_t max_node_id = 0;
+    max_valid_node_id_ = numeric_limits<int>::min();
+    min_valid_node_id_ = numeric_limits<int>::max();
 
     const vector<uint32_t>& nodes_ids = const_cast<Graph&>(graph_).getNodesIds();
-    for (uint32_t node_id: nodes_ids) {
-      max_node_id = max(max_node_id, node_id);
-      valid_nodes_num_ += graph_.node_distance(node_id) >= min_pos;
+    for (int node_id: nodes_ids) {
+      if (graph_.node_distance(node_id) >= min_pos) {
+        valid_nodes_num_++;
+        max_valid_node_id_ = max(max_valid_node_id_, node_id);
+        min_valid_node_id_ = min(min_valid_node_id_, node_id);
+      }
     }
 
+    fprintf(stderr, "%d %d\n", max_valid_node_id_, min_valid_node_id_);
+
     index_to_nodeID_.resize(valid_nodes_num_);
-    nodeID_to_index_.resize(max_node_id + 1, -1);
+    nodeID_to_index_.resize(max_valid_node_id_ - min_valid_node_id_ + 1, -1);
 
     uint32_t idx = 0;
     for (int node_id: nodes_ids) {
@@ -198,7 +205,7 @@ void Alignment::init_dp_tables(const int min_pos) {
             continue;
         }
 
-        nodeID_to_index_[node_id] = idx;
+        nodeID_to_index_[node_id - min_valid_node_id_] = idx;
         index_to_nodeID_[idx] = node_id;
         idx++;
     }
@@ -213,5 +220,8 @@ void Alignment::init_dp_tables(const int min_pos) {
 }
 
 int Alignment::index_from_node_id(const uint32_t node_id) const {
-    return nodeID_to_index_[node_id];
+    if (node_id < min_valid_node_id_ || node_id > max_valid_node_id_) {
+        return -1;
+    }
+    return nodeID_to_index_[(int) node_id - min_valid_node_id_];
 }
