@@ -142,7 +142,7 @@ namespace POA {
             const char base = node->base();
 
             // calculate sequence substring that should be part of DP
-            int lo = seq_limits_[i].first, hi = seq_limits_[i].second;
+            int lo = seq_limits_[i + 1].first, hi = seq_limits_[i + 1].second;
             for (int j = lo; j < hi; ++j) {
                 // insertion from sequence, unchanged as in SW
                 move best_candidate(dp(i + 1, j).score + dp(i + 1, j).insert_cost,
@@ -258,12 +258,15 @@ namespace POA {
                 lo = max(0, (int) (graph_.min_node_distance(node_id) - band_width - min_pos));
                 hi = min((int) sequence_.length(), (int) (graph_.max_node_distance(node_id) + band_width - min_pos + 1));
             }
-            seq_limits_[idx] = make_pair(lo, hi);
+            seq_limits_[idx + 1] = make_pair(lo, hi);
 
             dp_width_ = max((int) dp_width_, hi - lo);
 
             idx++;
         }
+
+        // init first row limits (belongs to no node)
+        seq_limits_[0] = seq_limits_[1];
 
         // init dynamic programming smith waterman matrix
         dp_.resize((valid_nodes_num_ + 1)*(dp_width_ + 1), dp_el(0, -1, -1, open_gap_score_, open_gap_score_));
@@ -295,7 +298,7 @@ namespace POA {
          * |..........xxxxxxxxxxx|
          * -----------------------
          */
-        const int lo = i == 0 ? 0 : seq_limits_[i].first;
+        const int lo = seq_limits_[i].first;
         return dp_[i*(dp_width_ + 1) + j - lo];
     }
 }
