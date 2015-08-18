@@ -16,14 +16,17 @@ using std::shared_ptr;
 using std::vector;
 using std::string;
 
-Edge::Edge(uint32_t id_A, uint32_t id_B,
-           const string& label, const Graph& graph): graph_(graph),
-                                                     A_(graph.getNode(id_A)),
-                                                     B_(graph.getNode(id_B)) {
-    labels.emplace_back(label);
-}
+namespace POA {
 
-void Edge::addLabel(const string& label) {
-    // check for duplicates, if so use set instead of vector
-    labels.emplace_back(label);
+    Edge::Edge(uint32_t id_A, uint32_t id_B,
+               const string& label, const Graph& graph): graph_(graph),
+                                                         A_(graph.getNode(id_A)),
+                                                         B_(graph.getNode(id_B)) {
+        labels.emplace_back(label);
+    }
+
+    void Edge::addLabel(const string& label) {
+        // check for duplicates, if so use set instead of vector
+        labels.emplace_back(label);
+    }
 }
